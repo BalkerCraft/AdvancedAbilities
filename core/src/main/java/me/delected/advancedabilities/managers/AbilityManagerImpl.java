@@ -49,7 +49,7 @@ public class AbilityManagerImpl implements AbilityManager {
     public Ability getAbilityByItem(ItemStack item) {
 
         if (item == null || item.getType() == Material.AIR || item.getAmount() == 0) {
-            instance.getLogger().warning("Attempted to get ability from null item");
+//            instance.getLogger().warning("Attempted to get ability from null item");
             return null;
         }
 
