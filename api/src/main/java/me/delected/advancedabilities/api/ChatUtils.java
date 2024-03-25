@@ -39,9 +39,9 @@ public class ChatUtils {
         long remainder = seconds % 60;
         String finalString;
         if (minutes >= 1) {
-            finalString =  minutes+"m "+remainder+"s";
+            finalString =  minutes+"p "+remainder+"mp";
         } else {
-            finalString = seconds+"s";
+            finalString = seconds+"mp";
         }
 
         return finalString;

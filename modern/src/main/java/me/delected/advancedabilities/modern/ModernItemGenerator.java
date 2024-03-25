@@ -96,6 +96,4 @@ public class ModernItemGenerator extends ItemGenerator {
         return ChatUtils.colorize(lore.replaceAll("%cooldown%", ChatUtils.parseTime(ability.getCooldownTime())).replaceAll("%seconds%", seconds));
     }
 
-
-
 }
