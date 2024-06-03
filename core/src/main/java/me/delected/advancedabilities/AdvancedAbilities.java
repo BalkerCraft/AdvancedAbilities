@@ -37,6 +37,7 @@ import java.util.concurrent.TimeUnit;
 //TODO add worldguard region support, timewarp pearl death
 
 public final class AdvancedAbilities extends JavaPlugin implements AdvancedAPI {
+    private final String CURRENT_VERSION = getPlugin().getDescription().getVersion();
     @Getter
     private FileConfiguration abilitiesConfig;
     @Getter
@@ -49,21 +50,20 @@ public final class AdvancedAbilities extends JavaPlugin implements AdvancedAPI {
     @Getter
     private boolean updateAvailable = false;
     private boolean worldGuardEnabled = false;
-    private final String CURRENT_VERSION = getPlugin().getDescription().getVersion();
 
     @Override
     public void onLoad() {
         getLogger().info("§8§l§m------------------");
         getLogger().info("");
-        getLogger().info("§6§lAdvancedAbilities §8§l» §e§l$4.1.2}");
+        getLogger().info("§6§lAdvancedAbilities §8§l» §e§l4.1.2-CUSTOM");
         getLogger().info("§e§lby Endxxr");
         getLogger().info("§e§l& Delected_ §7(Original Author)");
         getLogger().info("");
         getLogger().info("§8§l§m------------------");
         AdvancedProvider.setApi(this);
         setUpWorldGuard();
-        checkVersion();
-        checkUpdate();
+//        checkVersion();
+//        checkUpdate();
     }
 
     @Override
@@ -88,7 +88,7 @@ public final class AdvancedAbilities extends JavaPlugin implements AdvancedAPI {
     public void onDisable() {
         getLogger().info("§8§l§m------------------");
         getLogger().info("");
-        getLogger().info("§6§lAdvancedAbilities §8§l» §e§l4.1.2");
+        getLogger().info("§6§lAdvancedAbilities §8§l» §e§l4.1.2-CUSTOM");
         getLogger().info("");
         getLogger().info("Disabling...");
         getLogger().info("§8§l§m------------------");
@@ -141,8 +141,8 @@ public final class AdvancedAbilities extends JavaPlugin implements AdvancedAPI {
     private void checkVersion() {
 
         NMSVersion nmsVersion = NMSVersion.getSeverVersion();
-        if (nmsVersion.getInt() < 80 || nmsVersion.getInt() > 201) {
-            getLogger().severe("Your version ("+nmsVersion.name()+") isn't supported!");
+        if (nmsVersion.getInt() < 80 || nmsVersion.getInt() > 211) {
+            getLogger().severe("Your version (" + nmsVersion.name() + ") isn't supported!");
             getLogger().severe("Disabling the plugin...");
             getLogger().info("§8§l§m------------------");
             getServer().getPluginManager().disablePlugin(this);
