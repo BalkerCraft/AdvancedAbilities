@@ -3,7 +3,23 @@ package me.delected.advancedabilities;
 import lombok.Getter;
 import lombok.SneakyThrows;
 import me.delected.advancedabilities.ability.AbilityListener;
-import me.delected.advancedabilities.ability.abilities.*;
+import me.delected.advancedabilities.ability.abilities.AntiBlockUp;
+import me.delected.advancedabilities.ability.abilities.Bamboozle;
+import me.delected.advancedabilities.ability.abilities.FakePearl;
+import me.delected.advancedabilities.ability.abilities.InstantCrapple;
+import me.delected.advancedabilities.ability.abilities.InstantGapple;
+import me.delected.advancedabilities.ability.abilities.Invulnerability;
+import me.delected.advancedabilities.ability.abilities.Leap;
+import me.delected.advancedabilities.ability.abilities.PortableBard;
+import me.delected.advancedabilities.ability.abilities.PotCounter;
+import me.delected.advancedabilities.ability.abilities.RabbitSoul;
+import me.delected.advancedabilities.ability.abilities.Repair;
+import me.delected.advancedabilities.ability.abilities.RepairAll;
+import me.delected.advancedabilities.ability.abilities.RottenEgg;
+import me.delected.advancedabilities.ability.abilities.Saviour;
+import me.delected.advancedabilities.ability.abilities.Stun;
+import me.delected.advancedabilities.ability.abilities.SwitcherSnowBall;
+import me.delected.advancedabilities.ability.abilities.TimeWarpPearl;
 import me.delected.advancedabilities.api.AdvancedAPI;
 import me.delected.advancedabilities.api.AdvancedProvider;
 import me.delected.advancedabilities.api.enums.NMSVersion;
@@ -11,9 +27,6 @@ import me.delected.advancedabilities.api.objects.ItemGenerator;
 import me.delected.advancedabilities.api.objects.managers.RegionChecker;
 import me.delected.advancedabilities.commands.AbilityCommand;
 import me.delected.advancedabilities.commands.GetAbilityCommand;
-import me.delected.advancedabilities.legacy.LegacyItemGenerator;
-import me.delected.advancedabilities.legacy.WG6RegionChecker;
-import me.delected.advancedabilities.legacy.abilities.LegacyGrapplingHook;
 import me.delected.advancedabilities.listeners.JoinListener;
 import me.delected.advancedabilities.managers.AbilityManagerImpl;
 import me.delected.advancedabilities.modern.ModernItemGenerator;
@@ -27,7 +40,11 @@ import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.Scanner;
@@ -123,13 +140,7 @@ public final class AdvancedAbilities extends JavaPlugin implements AdvancedAPI {
         abilityManager.registerAbility(new Stun());
         abilityManager.registerAbility(new SwitcherSnowBall());
         abilityManager.registerAbility(new TimeWarpPearl());
-
-
-        if (NMSVersion.isLegacy()) {
-            abilityManager.registerAbility(new LegacyGrapplingHook());
-        } else {
-            abilityManager.registerAbility(new ModernGrapplingHook());
-        }
+        abilityManager.registerAbility(new ModernGrapplingHook());
 
     }
 
@@ -163,13 +174,7 @@ public final class AdvancedAbilities extends JavaPlugin implements AdvancedAPI {
     }
 
     private void setInstances() {
-
-        if (NMSVersion.isLegacy()) {
-            itemGenerator = new LegacyItemGenerator();
-        } else {
-            itemGenerator = new ModernItemGenerator();
-        }
-
+        itemGenerator = new ModernItemGenerator();
         abilityManager = new AbilityManagerImpl(this);
 
     }
@@ -187,11 +192,7 @@ public final class AdvancedAbilities extends JavaPlugin implements AdvancedAPI {
             getLogger().info("Detected WorldGuard v6.x.x!");
         }
 
-        if (oldWGVersion) {
-            regionChecker = new WG6RegionChecker();
-        } else {
-            regionChecker = new WG7RegionChecker();
-        }
+        regionChecker = new WG7RegionChecker();
         regionChecker.registerFlags();
     }
 

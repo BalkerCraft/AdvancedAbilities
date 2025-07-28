@@ -15,11 +15,12 @@ import org.bukkit.util.Vector;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
 public class ModernGrapplingHook extends Ability implements Listener {
-    private final HashMap<UUID, Vector> grapple = new HashMap<>();
+    private final Map<UUID, Vector> grapple = new HashMap<>();
     private final Set<UUID> fallList = new HashSet<>();
 
     public String getId() {
@@ -34,38 +35,51 @@ public class ModernGrapplingHook extends Ability implements Listener {
     public void onGrappleLaunch(ProjectileLaunchEvent event) {
         if (!(event.getEntity().getShooter() instanceof Player))
             return;
-        Player shooter = (Player)event.getEntity().getShooter();
+        Player shooter = (Player) event.getEntity().getShooter();
         if (event.getEntity().getType() != EntityType.FISHING_HOOK)
             return;
         ItemStack item = shooter.getItemInHand();
         Ability ability = AdvancedProvider.getAPI().getAbilityManager().getAbilityByItem(item);
         if (ability == null)
             return;
-        if (AdvancedProvider.getAPI().getAbilityManager().inCooldown(shooter, this))
+        if (AdvancedProvider.getAPI().getAbilityManager().inCooldown(shooter, this)) {
+            event.setCancelled(true);
             return;
+        }
+
         this.grapple.putIfAbsent(shooter.getUniqueId(), event.getEntity().getVelocity());
     }
 
     @EventHandler
     public void onPlayerFish(PlayerFishEvent event) {
-        ItemStack item = event.getPlayer().getItemInHand();
-        Ability ability = AdvancedProvider.getAPI().getAbilityManager().getAbilityByItem(item);
-        if (ability == null)
-            return;
         Player player = event.getPlayer();
+        UUID playerId = player.getUniqueId();
+
+        if (!this.grapple.containsKey(playerId))
+            return;
+
+        if (event.getState() != PlayerFishEvent.State.REEL_IN &&
+            event.getState() != PlayerFishEvent.State.CAUGHT_ENTITY &&
+            event.getState() != PlayerFishEvent.State.CAUGHT_FISH &&
+            event.getState() != PlayerFishEvent.State.IN_GROUND)
+            return;
 
         Location loc = player.getLocation();
         Location hookLoc = event.getHook().getLocation();
-        Vector v = this.grapple.get(player.getUniqueId());
-        if (!this.grapple.containsKey(player.getUniqueId())) return;
+        Vector v = this.grapple.get(playerId);
 
-        this.grapple.remove(player.getUniqueId());
+        this.grapple.remove(playerId);
         double dis = loc.distance(hookLoc);
-        item.setDurability((short)0);
-        if (!getConfig().getBoolean("fall-damage"))
-            this.fallList.add(player.getUniqueId());
-        addCooldown(player);
 
+        ItemStack item = player.getItemInHand();
+        Ability ability = AdvancedProvider.getAPI().getAbilityManager().getAbilityByItem(item);
+        if (ability != null && ability.getId().equals(this.getId())) {
+            item.setDurability((short) 0);
+        }
+
+        if (!getConfig().getBoolean("fall-damage"))
+            this.fallList.add(playerId);
+        addCooldown(player);
 
         double X = (1.0D + 0.24D * dis) * (hookLoc.getX() - loc.getX()) / dis;
         double Y = (1.0D + 0.12D * dis) * (hookLoc.getY() - loc.getY()) / dis - -0.04D * dis;
