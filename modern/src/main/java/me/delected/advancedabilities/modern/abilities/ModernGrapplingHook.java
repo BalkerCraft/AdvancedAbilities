@@ -84,11 +84,11 @@ public class ModernGrapplingHook extends Ability implements Listener {
         Vector direction = hookLoc.toVector().subtract(loc.toVector()).normalize();
 
         // Cap the distance to prevent excessive velocity
-        double cappedDistance = Math.min(dis, 30.0); // Maximum effective distance of 30 blocks
+        double cappedDistance = Math.min(dis, 35.0); // Maximum effective distance of 30 blocks
 
         // Calculate velocity multiplier based on distance
         // Closer = less force, farther = more force, but with diminishing returns
-        double velocityMultiplier = Math.min(5.5, 1.6 + (cappedDistance * 0.1)); // 2x stronger
+        double velocityMultiplier = Math.min(6, 1.6 + (cappedDistance * 0.175)); // 2x stronger
 
         // Apply different multipliers for vertical movement
         double horizontalMultiplier = velocityMultiplier;
@@ -97,8 +97,8 @@ public class ModernGrapplingHook extends Ability implements Listener {
         // If shooting straight up (hook above player), reduce horizontal influence
         double verticalComponent = direction.getY();
         if (verticalComponent > 0.7) { // Hook is mostly above
-            horizontalMultiplier *= (1 - (verticalComponent - 0.2)); // Greatly reduce horizontal push
-            verticalMultiplier = Math.min(1.65, verticalMultiplier); // Cap vertical boost (2x stronger)
+            horizontalMultiplier *= (1 - (verticalComponent - 0.6)); // Greatly reduce horizontal push
+            verticalMultiplier = Math.min(1.5, verticalMultiplier); // Cap vertical boost (2x stronger)
         }
 
         // Calculate final velocity
