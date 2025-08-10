@@ -109,7 +109,7 @@ public class ModernGrapplingHook extends Ability implements Listener {
         );
 
         // Add a small upward boost to make the grappling feel better
-        if (newVelocity.getY() < 0.4 && dis > 5) {
+        if (newVelocity.getY() < 0.4) {
             newVelocity.setY(Math.max(newVelocity.getY(), 0.8)); // 2x stronger upward boost
         }
 
