@@ -66,7 +66,6 @@ public class ModernGrapplingHook extends Ability implements Listener {
 
         Location loc = player.getLocation();
         Location hookLoc = event.getHook().getLocation();
-        Vector v = this.grapple.get(playerId);
 
         this.grapple.remove(playerId);
         double dis = loc.distance(hookLoc);
@@ -81,15 +80,45 @@ public class ModernGrapplingHook extends Ability implements Listener {
             this.fallList.add(playerId);
         addCooldown(player);
 
-        double X = (1.0D + 0.24D * dis) * (hookLoc.getX() - loc.getX()) / dis;
-        double Y = (1.0D + 0.12D * dis) * (hookLoc.getY() - loc.getY()) / dis - -0.04D * dis;
-        double Z = (1.0D + 0.24D * dis) * (hookLoc.getZ() - loc.getZ()) / dis;
-        Vector playerVector = player.getVelocity();
-        playerVector.setX(X);
-        playerVector.setY(Y);
-        playerVector.setZ(Z);
-        player.setVelocity(playerVector);
-        player.setVelocity(v.multiply(dis * 0.3D).setY((dis * 0.1D > 1.0D) ? 1.0D : ((player.getLocation().getPitch() < -70.0F) ? 1.25D : ((player.getLocation().getPitch() < -50.0F) ? 1.125D : 1.0D))));
+        // Calculate direction vector from player to hook
+        Vector direction = hookLoc.toVector().subtract(loc.toVector()).normalize();
+
+        // Cap the distance to prevent excessive velocity
+        double cappedDistance = Math.min(dis, 30.0); // Maximum effective distance of 30 blocks
+
+        // Calculate velocity multiplier based on distance
+        // Closer = less force, farther = more force, but with diminishing returns
+        double velocityMultiplier = Math.min(5.5, 1.6 + (cappedDistance * 0.1)); // 2x stronger
+
+        // Apply different multipliers for vertical movement
+        double horizontalMultiplier = velocityMultiplier;
+        double verticalMultiplier = velocityMultiplier * 0.8; // Slightly less vertical boost
+
+        // If shooting straight up (hook above player), reduce horizontal influence
+        double verticalComponent = direction.getY();
+        if (verticalComponent > 0.7) { // Hook is mostly above
+            horizontalMultiplier *= (1 - (verticalComponent - 0.2)); // Greatly reduce horizontal push
+            verticalMultiplier = Math.min(1.65, verticalMultiplier); // Cap vertical boost (2x stronger)
+        }
+
+        // Calculate final velocity
+        Vector newVelocity = new Vector(
+            direction.getX() * horizontalMultiplier,
+            direction.getY() * verticalMultiplier,
+            direction.getZ() * horizontalMultiplier
+        );
+
+        // Add a small upward boost to make the grappling feel better
+        if (newVelocity.getY() < 0.4 && dis > 5) {
+            newVelocity.setY(Math.max(newVelocity.getY(), 0.8)); // 2x stronger upward boost
+        }
+
+        // Preserve some of the player's current momentum (optional, for smoother movement)
+        Vector currentVelocity = player.getVelocity();
+        newVelocity.setX(newVelocity.getX() * 0.9 + currentVelocity.getX() * 0.1);
+        newVelocity.setZ(newVelocity.getZ() * 0.9 + currentVelocity.getZ() * 0.1);
+
+        player.setVelocity(newVelocity);
     }
 
     @EventHandler
