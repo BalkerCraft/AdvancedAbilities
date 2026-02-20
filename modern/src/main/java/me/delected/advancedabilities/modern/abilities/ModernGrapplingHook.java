@@ -80,40 +80,31 @@ public class ModernGrapplingHook extends Ability implements Listener {
             this.fallList.add(playerId);
         addCooldown(player);
 
-        // Calculate direction vector from player to hook
         Vector direction = hookLoc.toVector().subtract(loc.toVector()).normalize();
 
-        // Cap the distance to prevent excessive velocity
-        double cappedDistance = Math.min(dis, 35.0); // Maximum effective distance of 30 blocks
+        double cappedDistance = Math.min(dis, 35.0);
 
-        // Calculate velocity multiplier based on distance
-        // Closer = less force, farther = more force, but with diminishing returns
-        double velocityMultiplier = Math.min(6, 1.6 + (cappedDistance * 0.175)); // 2x stronger
+        double velocityMultiplier = Math.min(6, 1.6 + (cappedDistance * 0.175));
 
-        // Apply different multipliers for vertical movement
         double horizontalMultiplier = velocityMultiplier;
-        double verticalMultiplier = velocityMultiplier * 0.8; // Slightly less vertical boost
+        double verticalMultiplier = velocityMultiplier * 0.8;
 
-        // If shooting straight up (hook above player), reduce horizontal influence
         double verticalComponent = direction.getY();
-        if (verticalComponent > 0.7) { // Hook is mostly above
+        if (verticalComponent > 0.7) {
             horizontalMultiplier *= (1 - (verticalComponent - 0.6)); // Greatly reduce horizontal push
             verticalMultiplier = Math.min(1.5, verticalMultiplier); // Cap vertical boost (2x stronger)
         }
 
-        // Calculate final velocity
         Vector newVelocity = new Vector(
             direction.getX() * horizontalMultiplier,
             direction.getY() * verticalMultiplier,
             direction.getZ() * horizontalMultiplier
         );
 
-        // Add a small upward boost to make the grappling feel better
         if (newVelocity.getY() < 0.4) {
             newVelocity.setY(Math.max(newVelocity.getY(), 0.8)); // 2x stronger upward boost
         }
 
-        // Preserve some of the player's current momentum (optional, for smoother movement)
         Vector currentVelocity = player.getVelocity();
         newVelocity.setX(newVelocity.getX() * 0.9 + currentVelocity.getX() * 0.1);
         newVelocity.setZ(newVelocity.getZ() * 0.9 + currentVelocity.getZ() * 0.1);
